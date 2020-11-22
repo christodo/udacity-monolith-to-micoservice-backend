@@ -6,7 +6,9 @@ services:
   - docker
 
 before_install:
-  - install.sh
+  - chmod 700 install.sh
+  - ./install.sh
+
 # Pre-testing installs
 install:
   - echo "--- INSTALL PHASE BEGINN ---"
