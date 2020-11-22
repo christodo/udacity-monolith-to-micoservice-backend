@@ -5,9 +5,31 @@ node_js:
 services:
   - docker
 
+before_install:
+  - install.sh
 # Pre-testing installs
 install:
-  - echo "nothing needs to be installed"
+  - echo "--- INSTALL PHASE BEGINN ---"
+  - echo "--- INSTALL KUBECTL ---"
+  - curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+  - chmod +x ./kubectl
+  - sudo mv ./kubectl /usr/local/bin/kubectl
+  - kubectl version --client
+  - echo "--- INSTALL AWS CLI ---"
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  - unzip awscliv2.zip
+  - sudo ./aws/install
+  - aws --version
+  - mkdir ${HOME}/.aws
+  - export AWS_PROFILE=udacity
+  - export AWS_REGION=eu-west-1
+  - aws sts get-caller-identity
+  - echo "--- CONFIGURE KUBECTL ---"
+  - aws eks update-kubeconfig --name udacity-test-cluster
+  - cat ${HOME}/.kube/config
+  - echo "--- TEST CLUSTER CONNECTION ---"
+  - kubectl get nodes
+  - echo "--- INSTALL PHASE DONE ---"
 
 # Scripts to be run such as tests
 before_script:
@@ -21,3 +43,6 @@ script:
 after_success:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker push $DOCKER_USERNAME/frontend
+  - kubectl apply -f deployment.yaml
+  - kubectl apply -f service.yaml
+  - kubectl apply -f autoscaling.yaml
