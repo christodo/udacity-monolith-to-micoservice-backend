@@ -22,7 +22,6 @@ install:
   - unzip awscliv2.zip
   - sudo ./aws/install
   - aws --version
-  - mkdir ${HOME}/.aws
   - export AWS_PROFILE=udacity
   - export AWS_REGION=eu-west-1
   - aws sts get-caller-identity
